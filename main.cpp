@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <cmath>
 
 // Constants
 const int windowWidth = 800;
@@ -13,28 +14,35 @@ const int blockRows = 5;
 const int blockColumns = 11;
 const float blockWidth = 60.f;
 const float blockHeight = 20.f;
-
+const int initialBallCount = 3;
 // Ball class
-class Ball {
+class Ball
+{
 public:
     sf::CircleShape shape;
     sf::Vector2f velocity{-ballVelocity, -ballVelocity};
 
-    Ball(float mX, float mY) {
+    Ball(float mX, float mY)
+    {
         shape.setPosition(mX, mY);
         shape.setRadius(ballRadius);
         shape.setFillColor(sf::Color::Red);
         shape.setOrigin(ballRadius, ballRadius);
     }
 
-    void update() {
+    void update()
+    {
         shape.move(velocity);
 
-        if (left() < 0) velocity.x = ballVelocity;
-        else if (right() > windowWidth) velocity.x = -ballVelocity;
+        if (left() < 0)
+            velocity.x = ballVelocity;
+        else if (right() > windowWidth)
+            velocity.x = -ballVelocity;
 
-        if (top() < 0) velocity.y = ballVelocity;
-        else if (bottom() > windowHeight) velocity.y = -ballVelocity;
+        if (top() < 0)
+            velocity.y = ballVelocity;
+        else if (bottom() > windowHeight)
+            velocity.y = -ballVelocity;
     }
 
     float x() const { return shape.getPosition().x; }
@@ -46,19 +54,22 @@ public:
 };
 
 // Paddle class
-class Paddle {
+class Paddle
+{
 public:
     sf::RectangleShape shape;
     sf::Vector2f velocity;
 
-    Paddle(float mX, float mY) {
+    Paddle(float mX, float mY)
+    {
         shape.setPosition(mX, mY);
         shape.setSize({paddleWidth, paddleHeight});
         shape.setFillColor(sf::Color::Green);
         shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
     }
 
-    void update() {
+    void update()
+    {
         shape.move(velocity);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && left() > 0)
@@ -78,12 +89,14 @@ public:
 };
 
 // Block class
-class Block {
+class Block
+{
 public:
     sf::RectangleShape shape;
     bool destroyed{false};
 
-    Block(float mX, float mY) {
+    Block(float mX, float mY)
+    {
         shape.setPosition(mX, mY);
         shape.setSize({blockWidth, blockHeight});
         shape.setFillColor(sf::Color::Yellow);
@@ -100,22 +113,29 @@ public:
 
 // Collision detection
 template <class T1, class T2>
-bool isIntersecting(T1& mA, T2& mB) {
+bool isIntersecting(T1 &mA, T2 &mB)
+{
     return mA.right() >= mB.left() && mA.left() <= mB.right() &&
            mA.bottom() >= mB.top() && mA.top() <= mB.bottom();
 }
 
-void testCollision(Paddle& mPaddle, Ball& mBall) {
-    if (!isIntersecting(mPaddle, mBall)) return;
+void testCollision(Paddle &mPaddle, Ball &mBall)
+{
+    if (!isIntersecting(mPaddle, mBall))
+        return;
 
     mBall.velocity.y = -ballVelocity;
 
-    if (mBall.x() < mPaddle.x()) mBall.velocity.x = -ballVelocity;
-    else mBall.velocity.x = ballVelocity;
+    if (mBall.x() < mPaddle.x())
+        mBall.velocity.x = -ballVelocity;
+    else
+        mBall.velocity.x = ballVelocity;
 }
 
-void testCollision(Block& mBlock, Ball& mBall) {
-    if (!isIntersecting(mBlock, mBall)) return;
+void testCollision(Block &mBlock, Ball &mBall)
+{
+    if (!isIntersecting(mBlock, mBall))
+        return;
 
     mBlock.destroyed = true;
 
@@ -124,20 +144,22 @@ void testCollision(Block& mBlock, Ball& mBall) {
     float overlapTop{mBall.bottom() - mBlock.top()};
     float overlapBottom{mBlock.bottom() - mBall.top()};
 
-    bool ballFromLeft(abs(overlapLeft) < abs(overlapRight));
-    bool ballFromTop(abs(overlapTop) < abs(overlapBottom));
+    bool ballFromLeft(std::abs(overlapLeft) < std::abs(overlapRight));
+    bool ballFromTop(std::abs(overlapTop) < std::abs(overlapBottom));
 
     float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
     float minOverlapY{ballFromTop ? overlapTop : overlapBottom};
 
-    if (abs(minOverlapX) < abs(minOverlapY))
+    if (std::abs(minOverlapX) < std::abs(minOverlapY))
         mBall.velocity.x = ballFromLeft ? -ballVelocity : ballVelocity;
     else
         mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
 }
 
-int main() {
-    Ball ball{windowWidth / 2, windowHeight / 2};
+int main()
+{
+    std::vector<Ball> balls;
+    balls.emplace_back(windowWidth / 2, windowHeight / 2);
     Paddle paddle{windowWidth / 2, windowHeight - 50};
 
     std::vector<Block> blocks;
@@ -148,28 +170,54 @@ int main() {
     sf::RenderWindow window{{windowWidth, windowHeight}, "Breakout"};
     window.setFramerateLimit(60);
 
-    while (true) {
+    while (true)
+    {
         window.clear(sf::Color::Black);
+        static sf::Clock clock;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && clock.getElapsedTime().asSeconds() >= 1.f)
+        {
+            balls.emplace_back(paddle.x() , paddle.top());
+            clock.restart();
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+            break;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) break;
-
-        ball.update();
+        for (auto &ball : balls)
+        {
+            ball.update();
+        }
         paddle.update();
-        testCollision(paddle, ball);
+        for (auto &ball : balls)
+        {
+            testCollision(paddle, ball);
+        }
+        for (auto &ball : balls)
+        {
+            for (auto &block : blocks)
+                testCollision(block, ball);
+        }
+        blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block &mBlock)
+                                    { return mBlock.destroyed; }),
+                     end(blocks));
 
-        for (auto& block : blocks) testCollision(block, ball);
-        blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block& mBlock) { return mBlock.destroyed; }), end(blocks));
-
-        window.draw(ball.shape);
+        for (auto &ball : balls)
+        {
+            window.draw(ball.shape);
+        }
+        blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block &mBlock)
+                                    { return mBlock.destroyed; }),
+                     end(blocks));
 
         sf::Event event;
-        while (window.pollEvent(event)) {
+        while (window.pollEvent(event))
+        {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
 
         window.draw(paddle.shape);
-        for (auto& block : blocks) window.draw(block.shape);
+        for (auto &block : blocks)
+            window.draw(block.shape);
 
         window.display();
     }
