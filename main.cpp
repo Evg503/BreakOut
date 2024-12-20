@@ -1,17 +1,18 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <cmath>
+#include <random>
 
 // Constants
 const int windowWidth = 800;
 const int windowHeight = 600;
-const float ballRadius = 10.f;
+const float ballRadius = 3.f;
 const float ballVelocity = 8.f;
 const float paddleWidth = 60.f;
 const float paddleHeight = 20.f;
 const float paddleVelocity = 6.f;
-const int blockRows = 15;
-const int blockColumns = 51;
+const int blockRows = 25;
+const int blockColumns = 100;
 const int initialBallCount = 3;
 // Ball class
 class Ball
@@ -20,8 +21,10 @@ public:
     sf::CircleShape shape;
     sf::Vector2f velocity{-ballVelocity, -ballVelocity};
 
-    Ball(float x, float y)
+    Ball(float x, float y) 
     {
+        std::random_device rd;
+        gen.seed(rd());
         shape.setPosition(x, y);
         shape.setRadius(ballRadius);
         shape.setFillColor(sf::Color::Red);
@@ -32,15 +35,13 @@ public:
     {
         shape.move(velocity);
 
-        if (left() < 0)
-            velocity.x = ballVelocity;
-        else if (right() > windowWidth)
-            velocity.x = -ballVelocity;
+        std::uniform_real_distribution<float> dis(0.8f, 1.2f);
 
-        if (top() < 0)
-            velocity.y = ballVelocity;
-        else if (bottom() > windowHeight)
-            velocity.y = -ballVelocity;
+        if (left() < 0 || right() > windowWidth)
+            velocity.x = -velocity.x * dis(gen);
+
+        if (top() < 0 || bottom() > windowHeight)
+            velocity.y = -velocity.y * dis(gen);
     }
 
     float x() const { return shape.getPosition().x; }
@@ -49,6 +50,9 @@ public:
     float right() const { return x() + shape.getRadius(); }
     float top() const { return y() - shape.getRadius(); }
     float bottom() const { return y() + shape.getRadius(); }
+
+public:
+    std::mt19937 gen;
 };
 
 // Paddle class
@@ -163,15 +167,15 @@ public:
     {
         window.setFramerateLimit(60);
 
-        float startBlocksX{0.1*windowWidth};
-        float endBlocksX{0.9*windowWidth};
-        float startBlocksY{0.1*windowHeight};
-        float endBlocksY{0.5*windowHeight};
-        float blockHeight{(endBlocksY-startBlocksY)/blockRows};
-        float blockWidth{(endBlocksX-startBlocksX)/blockColumns};
+        float startBlocksX{0.1 * windowWidth};
+        float endBlocksX{0.9 * windowWidth};
+        float startBlocksY{0.1 * windowHeight};
+        float endBlocksY{0.5 * windowHeight};
+        float blockHeight{(endBlocksY - startBlocksY) / blockRows};
+        float blockWidth{(endBlocksX - startBlocksX) / blockColumns};
         for (int iX{0}; iX < blockColumns; ++iX)
             for (int iY{0}; iY < blockRows; ++iY)
-                blocks.emplace_back(startBlocksX + iX*blockWidth, startBlocksY + iY*blockHeight, blockWidth-1, blockHeight-1);
+                blocks.emplace_back(startBlocksX + iX * blockWidth, startBlocksY + iY * blockHeight, blockWidth - 1, blockHeight - 1);
     }
 
     void run()
