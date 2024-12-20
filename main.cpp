@@ -10,10 +10,8 @@ const float ballVelocity = 8.f;
 const float paddleWidth = 60.f;
 const float paddleHeight = 20.f;
 const float paddleVelocity = 6.f;
-const int blockRows = 5;
-const int blockColumns = 11;
-const float blockWidth = 60.f;
-const float blockHeight = 20.f;
+const int blockRows = 15;
+const int blockColumns = 51;
 const int initialBallCount = 3;
 // Ball class
 class Ball
@@ -22,9 +20,9 @@ public:
     sf::CircleShape shape;
     sf::Vector2f velocity{-ballVelocity, -ballVelocity};
 
-    Ball(float mX, float mY)
+    Ball(float x, float y)
     {
-        shape.setPosition(mX, mY);
+        shape.setPosition(x, y);
         shape.setRadius(ballRadius);
         shape.setFillColor(sf::Color::Red);
         shape.setOrigin(ballRadius, ballRadius);
@@ -60,9 +58,9 @@ public:
     sf::RectangleShape shape;
     sf::Vector2f velocity;
 
-    Paddle(float mX, float mY)
+    Paddle(float x, float y)
     {
-        shape.setPosition(mX, mY);
+        shape.setPosition(x, y);
         shape.setSize({paddleWidth, paddleHeight});
         shape.setFillColor(sf::Color::Green);
         shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
@@ -95,9 +93,9 @@ public:
     sf::RectangleShape shape;
     bool destroyed{false};
 
-    Block(float mX, float mY)
+    Block(float x, float y, float blockWidth, float blockHeight)
     {
-        shape.setPosition(mX, mY);
+        shape.setPosition(x, y);
         shape.setSize({blockWidth, blockHeight});
         shape.setFillColor(sf::Color::Yellow);
         shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
@@ -156,31 +154,62 @@ void testCollision(Block &mBlock, Ball &mBall)
         mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
 }
 
-int main()
+class Application
 {
-    std::vector<Ball> balls;
-    balls.emplace_back(windowWidth / 2, windowHeight / 2);
-    Paddle paddle{windowWidth / 2, windowHeight - 50};
-
-    std::vector<Block> blocks;
-    for (int iX{0}; iX < blockColumns; ++iX)
-        for (int iY{0}; iY < blockRows; ++iY)
-            blocks.emplace_back((iX + 1) * (blockWidth + 3) + 22, (iY + 2) * (blockHeight + 3));
-
-    sf::RenderWindow window{{windowWidth, windowHeight}, "Breakout"};
-    window.setFramerateLimit(60);
-
-    while (true)
+public:
+    Application()
+        : window{{windowWidth, windowHeight}, "Breakout"},
+          paddle{windowWidth / 2, windowHeight - 50}
     {
-        window.clear(sf::Color::Black);
-        static sf::Clock clock;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && clock.getElapsedTime().asSeconds() >= 1.f)
+        window.setFramerateLimit(60);
+
+        float startBlocksX{0.1*windowWidth};
+        float endBlocksX{0.9*windowWidth};
+        float startBlocksY{0.1*windowHeight};
+        float endBlocksY{0.5*windowHeight};
+        float blockHeight{(endBlocksY-startBlocksY)/blockRows};
+        float blockWidth{(endBlocksX-startBlocksX)/blockColumns};
+        for (int iX{0}; iX < blockColumns; ++iX)
+            for (int iY{0}; iY < blockRows; ++iY)
+                blocks.emplace_back(startBlocksX + iX*blockWidth, startBlocksY + iY*blockHeight, blockWidth-1, blockHeight-1);
+    }
+
+    void run()
+    {
+        while (window.isOpen())
         {
-            balls.emplace_back(paddle.x() , paddle.top());
+            processEvents();
+            update();
+            draw();
+        }
+    }
+
+private:
+    sf::RenderWindow window;
+    std::vector<Ball> balls;
+    Paddle paddle;
+    std::vector<Block> blocks;
+
+    void processEvents()
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+    }
+
+    void update()
+    {
+        static sf::Clock clock;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && clock.getElapsedTime().asSeconds() >= 0.1f)
+        {
+            balls.emplace_back(paddle.x(), paddle.top());
             clock.restart();
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-            break;
+            window.close();
 
         for (auto &ball : balls)
         {
@@ -199,28 +228,27 @@ int main()
         blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block &mBlock)
                                     { return mBlock.destroyed; }),
                      end(blocks));
+    }
+
+    void draw()
+    {
+        window.clear(sf::Color::Black);
 
         for (auto &ball : balls)
         {
             window.draw(ball.shape);
         }
-        blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block &mBlock)
-                                    { return mBlock.destroyed; }),
-                     end(blocks));
-
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
         window.draw(paddle.shape);
         for (auto &block : blocks)
             window.draw(block.shape);
 
         window.display();
     }
+};
 
+int main()
+{
+    Application app;
+    app.run();
     return 0;
 }
