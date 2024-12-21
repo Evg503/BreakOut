@@ -13,7 +13,6 @@ const float paddleHeight = 20.f;
 const float paddleVelocity = 6.f;
 const int blockRows = 25;
 const int blockColumns = 100;
-const int initialBallCount = 3;
 // Ball class
 class Ball
 {
@@ -21,7 +20,7 @@ public:
     sf::CircleShape shape;
     sf::Vector2f velocity{-ballVelocity, -ballVelocity};
 
-    Ball(float x, float y) 
+    Ball(float x, float y)
     {
         std::random_device rd;
         gen.seed(rd());
@@ -158,15 +157,12 @@ void testCollision(Block &mBlock, Ball &mBall)
         mBall.velocity.y = ballFromTop ? -ballVelocity : ballVelocity;
 }
 
-class Application
+class GameScreen
 {
 public:
-    Application()
-        : window{{windowWidth, windowHeight}, "Breakout"},
-          paddle{windowWidth / 2, windowHeight - 50}
+    GameScreen()
+        : paddle{windowWidth / 2, windowHeight - 50}
     {
-        window.setFramerateLimit(60);
-
         float startBlocksX{0.1 * windowWidth};
         float endBlocksX{0.9 * windowWidth};
         float startBlocksY{0.1 * windowHeight};
@@ -178,32 +174,6 @@ public:
                 blocks.emplace_back(startBlocksX + iX * blockWidth, startBlocksY + iY * blockHeight, blockWidth - 1, blockHeight - 1);
     }
 
-    void run()
-    {
-        while (window.isOpen())
-        {
-            processEvents();
-            update();
-            draw();
-        }
-    }
-
-private:
-    sf::RenderWindow window;
-    std::vector<Ball> balls;
-    Paddle paddle;
-    std::vector<Block> blocks;
-
-    void processEvents()
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-    }
-
     void update()
     {
         static sf::Clock clock;
@@ -212,8 +182,6 @@ private:
             balls.emplace_back(paddle.x(), paddle.top());
             clock.restart();
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-            window.close();
 
         for (auto &ball : balls)
         {
@@ -234,10 +202,8 @@ private:
                      end(blocks));
     }
 
-    void draw()
+    void draw(sf::RenderWindow &window)
     {
-        window.clear(sf::Color::Black);
-
         for (auto &ball : balls)
         {
             window.draw(ball.shape);
@@ -245,7 +211,57 @@ private:
         window.draw(paddle.shape);
         for (auto &block : blocks)
             window.draw(block.shape);
+    }
 
+private:
+    Paddle paddle;
+    std::vector<Ball> balls;
+    std::vector<Block> blocks;
+};
+class Application
+{
+public:
+    Application()
+        : window{{windowWidth, windowHeight}, "Breakout"}
+    {
+        window.setFramerateLimit(60);
+    }
+
+    void run()
+    {
+        while (window.isOpen())
+        {
+            processEvents();
+            update();
+            draw();
+        }
+    }
+
+private:
+    sf::RenderWindow window;
+    GameScreen gameScreen;
+    void processEvents()
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+    }
+
+    void update()
+    {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+            window.close();
+
+        gameScreen.update();
+    }
+
+    void draw()
+    {
+        window.clear(sf::Color::Black);
+        gameScreen.draw(window);
         window.display();
     }
 };
