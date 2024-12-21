@@ -28,7 +28,10 @@ public:
         // else
         //     velocity.x = 0;
     }
-
+    void move(float dx, float dy)
+    {
+        shape.move(dx, dy);
+    }
     float x() const { return shape.getPosition().x; }
     float y() const { return shape.getPosition().y; }
     float left() const { return x() - shape.getSize().x / 2.f; }

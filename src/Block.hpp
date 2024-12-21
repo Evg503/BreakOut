@@ -14,6 +14,10 @@ public:
         shape.setFillColor(sf::Color::Yellow);
         shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
     }
+    void move(float dx, float dy)
+    {
+        shape.move(dx, dy);
+    }
 
     float x() const { return shape.getPosition().x; }
     float y() const { return shape.getPosition().y; }

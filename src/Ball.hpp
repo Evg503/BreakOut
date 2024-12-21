@@ -10,14 +10,14 @@ public:
     sf::CircleShape shape;
     sf::Vector2f velocity{-ballVelocity, -ballVelocity};
 
-    Ball(float x, float y)
+    Ball(float x, float y, float radius = ballRadius)
     {
         std::random_device rd;
         gen.seed(rd());
         shape.setPosition(x, y);
-        shape.setRadius(ballRadius);
+        shape.setRadius(radius);
         shape.setFillColor(sf::Color::Red);
-        shape.setOrigin(ballRadius, ballRadius);
+        shape.setOrigin(radius, radius);
     }
 
     void update()
@@ -31,6 +31,10 @@ public:
 
         if (top() < 0 || bottom() > windowHeight)
             velocity.y = -velocity.y * dis(gen);
+    }
+    void move(float dx, float dy)
+    {
+        shape.move(dx, dy);
     }
 
     float x() const { return shape.getPosition().x; }
