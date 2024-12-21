@@ -16,16 +16,17 @@ public:
         shape.setOrigin(paddleWidth / 2.f, paddleHeight / 2.f);
     }
 
-    void update()
+    void update(sf::Window &window)
     {
         shape.move(velocity);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && left() > 0)
-            velocity.x = -paddleVelocity;
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && right() < windowWidth)
-            velocity.x = paddleVelocity;
-        else
-            velocity.x = 0;
+        auto mouseX = static_cast<float>(sf::Mouse::getPosition(window).x);
+        shape.setPosition(mouseX, shape.getPosition().y);
+        // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && left() > 0)
+        //     velocity.x = -paddleVelocity;
+        // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && right() < windowWidth)
+        //     velocity.x = paddleVelocity;
+        // else
+        //     velocity.x = 0;
     }
 
     float x() const { return shape.getPosition().x; }

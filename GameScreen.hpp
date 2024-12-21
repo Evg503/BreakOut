@@ -26,9 +26,9 @@ public:
                 blocks.emplace_back(startBlocksX + iX * blockWidth, startBlocksY + iY * blockHeight, blockWidth - 1, blockHeight - 1);
     }
 
-    bool update()
+    bool update(sf::RenderWindow &window)
     {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && emitClock.getElapsedTime().asSeconds() >= 0.1f)
+        if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Left)) && emitClock.getElapsedTime().asSeconds() >= 0.1f)
         {
             balls.emplace_back(paddle.x(), paddle.top());
             emitClock.restart();
@@ -38,7 +38,7 @@ public:
         {
             ball.update();
         }
-        paddle.update();
+        paddle.update(window);
         for (auto &ball : balls)
         {
             testCollision(paddle, ball);

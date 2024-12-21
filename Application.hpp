@@ -48,7 +48,7 @@ private:
         }
         if (gameScreen)
         {
-            if(gameScreen->update())
+            if(gameScreen->update(window))
             {
                 gameScreen.reset();
                 menuScreen = std::make_unique<MenuScreen>(windowWidth, windowHeight);
