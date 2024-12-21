@@ -26,13 +26,12 @@ public:
                 blocks.emplace_back(startBlocksX + iX * blockWidth, startBlocksY + iY * blockHeight, blockWidth - 1, blockHeight - 1);
     }
 
-    void update()
+    bool update()
     {
-        static sf::Clock clock;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && clock.getElapsedTime().asSeconds() >= 0.1f)
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && emitClock.getElapsedTime().asSeconds() >= 0.1f)
         {
             balls.emplace_back(paddle.x(), paddle.top());
-            clock.restart();
+            emitClock.restart();
         }
 
         for (auto &ball : balls)
@@ -52,6 +51,13 @@ public:
         blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block &mBlock)
                                     { return mBlock.destroyed; }),
                      end(blocks));
+
+        if (!gameOver && blocks.empty())
+        {
+            finalCountDownClock.restart();
+            gameOver = true;
+        }
+        return gameOver && finalCountDownClock.getElapsedTime().asSeconds() >= 3.f;
     }
 
     void draw(sf::RenderWindow &window)
@@ -69,4 +75,7 @@ private:
     Paddle paddle;
     std::vector<Ball> balls;
     std::vector<Block> blocks;
+    bool gameOver{false};
+    sf::Clock emitClock;
+    sf::Clock finalCountDownClock;
 };

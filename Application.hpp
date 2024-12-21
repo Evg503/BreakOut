@@ -1,7 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <memory>
 #include "GameScreen.hpp"
 #include "config.hpp"
+#include "MenuScreen.hpp"
 
 class Application
 {
@@ -9,6 +11,7 @@ public:
     Application()
         : window{{windowWidth, windowHeight}, "Breakout"}
     {
+        menuScreen = std::make_unique<MenuScreen>(windowWidth, windowHeight);
         window.setFramerateLimit(60);
     }
 
@@ -24,7 +27,9 @@ public:
 
 private:
     sf::RenderWindow window;
-    GameScreen gameScreen;
+    std::unique_ptr<GameScreen> gameScreen;
+    std::unique_ptr<MenuScreen> menuScreen;
+
     void processEvents()
     {
         sf::Event event;
@@ -38,15 +43,38 @@ private:
     void update()
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+        {
             window.close();
-
-        gameScreen.update();
+        }
+        if (gameScreen)
+        {
+            if(gameScreen->update())
+            {
+                gameScreen.reset();
+                menuScreen = std::make_unique<MenuScreen>(windowWidth, windowHeight);
+            }
+        }
+        if (menuScreen)
+        {
+            if (menuScreen->isPlayButtonPressed(window))
+            {
+                menuScreen.reset();
+                gameScreen = std::make_unique<GameScreen>();
+            }
+            else if (menuScreen->isExitButtonPressed(window))
+            {
+                window.close();
+            }
+        }
     }
 
     void draw()
     {
         window.clear(sf::Color::Black);
-        gameScreen.draw(window);
+        if (menuScreen)
+            menuScreen->draw(window);
+        if (gameScreen)
+            gameScreen->draw(window);
         window.display();
     }
 };
