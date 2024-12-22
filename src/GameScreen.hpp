@@ -41,7 +41,7 @@ public:
 
         for (auto &ball : balls)
         {
-            ball.update();
+            ball.update(window);
         }
         paddle.update(window);
         for (auto &ball : balls)
@@ -51,7 +51,9 @@ public:
         for (auto &ball : balls)
         {
             for (auto &block : blocks)
-                testCollision(block, ball);
+                if (testCollision(block, ball))
+                    break; //next ball
+            ;
         }
         blocks.erase(std::remove_if(begin(blocks), end(blocks), [](const Block &mBlock)
                                     { return mBlock.destroyed; }),

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set the project name
 project(Breakout)
 
@@ -21,7 +22,10 @@ include_directories(${GTEST_INCLUDE_DIRS})
 # Include directories for tests
 include_directories(${PROJECT_SOURCE_DIR}/src)
 # Add the test executable
-add_executable(runTests Tests/test_SceneObjects.cpp)
+add_executable(runTests 
+    Tests/test_SceneObjects.cpp
+    Tests/test_Collision.cpp
+)
 
 # Link the Google Test libraries
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
