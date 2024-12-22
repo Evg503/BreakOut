@@ -1,28 +1,21 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-class Block
+class Block: public SceneObject
 {
 public:
-    sf::RectangleShape shape;
     bool destroyed{false};
 
     Block(float x, float y, float blockWidth, float blockHeight)
     {
-        shape.setPosition(x, y);
-        shape.setSize({blockWidth, blockHeight});
-        shape.setFillColor(sf::Color::Yellow);
-        shape.setOrigin(blockWidth / 2.f, blockHeight / 2.f);
+        shape = std::make_unique<sf::RectangleShape>(sf::Vector2f{blockWidth, blockHeight});
+        shape->setPosition(x, y);
+        shape->setFillColor(sf::Color::Yellow);
+        shape->setOrigin(blockWidth / 2.f, blockHeight / 2.f);
     }
-    void move(float dx, float dy)
-    {
-        shape.move(dx, dy);
-    }
+    Block(Block const &) = delete;
+    Block &operator=(Block const &) = delete;
+    Block(Block &&) = default;
+    Block &operator=(Block &&) = default;
 
-    float x() const { return shape.getPosition().x; }
-    float y() const { return shape.getPosition().y; }
-    float left() const { return x() - shape.getSize().x / 2.f; }
-    float right() const { return x() + shape.getSize().x / 2.f; }
-    float top() const { return y() - shape.getSize().y / 2.f; }
-    float bottom() const { return y() + shape.getSize().y / 2.f; }
 };

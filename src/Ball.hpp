@@ -4,25 +4,24 @@
 #include "config.hpp"
 
 
-class Ball
+class Ball: public SceneObject
 {
 public:
-    sf::CircleShape shape;
     sf::Vector2f velocity{-ballVelocity, -ballVelocity};
 
     Ball(float x, float y, float radius = ballRadius)
     {
         std::random_device rd;
         gen.seed(rd());
-        shape.setPosition(x, y);
-        shape.setRadius(radius);
-        shape.setFillColor(sf::Color::Red);
-        shape.setOrigin(radius, radius);
+        shape = std::make_unique<sf::CircleShape>(radius);
+        shape->setPosition(x, y);
+        shape->setFillColor(sf::Color::Red);
+        shape->setOrigin(radius, radius);
     }
 
-    void update()
+    bool update()
     {
-        shape.move(velocity);
+        shape->move(velocity);
 
         std::uniform_real_distribution<float> dis(0.8f, 1.2f);
 
@@ -31,18 +30,9 @@ public:
 
         if (top() < 0 || bottom() > windowHeight)
             velocity.y = -velocity.y * dis(gen);
-    }
-    void move(float dx, float dy)
-    {
-        shape.move(dx, dy);
-    }
 
-    float x() const { return shape.getPosition().x; }
-    float y() const { return shape.getPosition().y; }
-    float left() const { return x() - shape.getRadius(); }
-    float right() const { return x() + shape.getRadius(); }
-    float top() const { return y() - shape.getRadius(); }
-    float bottom() const { return y() + shape.getRadius(); }
+        return false;
+    }
 
 public:
     std::mt19937 gen;

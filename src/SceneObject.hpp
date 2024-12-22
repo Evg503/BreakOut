@@ -12,10 +12,23 @@ public:
     SceneObject()
     {
     }
+    SceneObject(SceneObject const &) = delete;
+    SceneObject &operator=(SceneObject const &) = delete;
+    SceneObject(SceneObject &&) = default;
+    SceneObject &operator=(SceneObject &&) = default;
+
     virtual ~SceneObject() = default;
 
-    virtual void update(sf::Window &window) = 0;
-    virtual void draw(sf::RenderWindow &window) = 0;
+    virtual void update(sf::Window &window) {};
+    virtual void draw(sf::RenderWindow &window)
+    {
+        window.draw(*shape);
+    }
+
+    void move(float dx, float dy)
+    {
+        shape->move(dx, dy);
+    }
 
     float x() const { return shape->getPosition().x; }
     float y() const { return shape->getPosition().y; }
@@ -27,4 +40,5 @@ public:
 
     protected:
     std::unique_ptr<sf::Shape> shape;
-}
+};
+

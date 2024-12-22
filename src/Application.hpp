@@ -9,7 +9,7 @@ class Application
 {
 public:
     Application()
-        : window{{windowWidth, windowHeight, 1}, "Breakout", sf::Style::Fullscreen}
+        : window{{windowWidth, windowHeight, 1}, "Breakout"/*, sf::Style::Fullscreen*/}
     {
         menuScreen = std::make_unique<MenuScreen>(windowWidth, windowHeight);
         window.setFramerateLimit(60);

@@ -22,8 +22,13 @@ public:
         float blockHeight{(endBlocksY - startBlocksY) / blockRows};
         float blockWidth{(endBlocksX - startBlocksX) / blockColumns};
         for (int iX{0}; iX < blockColumns; ++iX)
+        {
             for (int iY{0}; iY < blockRows; ++iY)
+            {
+
                 blocks.emplace_back(startBlocksX + iX * blockWidth, startBlocksY + iY * blockHeight, blockWidth - 1, blockHeight - 1);
+            }
+        }
     }
 
     bool update(sf::RenderWindow &window)
@@ -64,11 +69,11 @@ public:
     {
         for (auto &ball : balls)
         {
-            window.draw(ball.shape);
+            ball.draw(window);
         }
-        window.draw(paddle.shape);
+        paddle.draw(window);
         for (auto &block : blocks)
-            window.draw(block.shape);
+            block.draw(window);
     }
 
 private:
