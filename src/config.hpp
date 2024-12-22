@@ -11,3 +11,5 @@ const float paddleHeight = 20.f;
 const float paddleVelocity = 6.f;
 const int blockRows = 10;
 const int blockColumns = 20;
+
+const int numAsteroids = 10;

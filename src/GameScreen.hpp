@@ -8,8 +8,8 @@
 #include "Block.hpp"
 #include "config.hpp"
 #include "Collision.hpp"
-
-class GameScreen
+#include "Screen.hpp"
+class GameScreen : public Screen
 {
 public:
     GameScreen()
@@ -31,7 +31,7 @@ public:
         }
     }
 
-    bool update(sf::Window &window)
+    bool update(sf::Window &window) override
     {
         if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Left)) && emitClock.getElapsedTime().asSeconds() >= 0.1f)
         {
@@ -67,7 +67,7 @@ public:
         return gameOver && finalCountDownClock.getElapsedTime().asSeconds() >= 3.f;
     }
 
-    void draw(sf::RenderWindow &window)
+    void draw(sf::RenderWindow &window) override
     {
         for (auto &ball : balls)
         {

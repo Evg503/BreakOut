@@ -4,6 +4,7 @@
 #include "GameScreen.hpp"
 #include "config.hpp"
 #include "MenuScreen.hpp"
+#include "Asteroids.h"
 
 class Application
 {
@@ -12,6 +13,16 @@ public:
         : window{{windowWidth, windowHeight, 1}, "Breakout"/*, sf::Style::Fullscreen*/}
     {
         menuScreen = std::make_unique<MenuScreen>(windowWidth, windowHeight);
+        static_cast<MenuScreen*>(menuScreen.get())->setPlayButtonPressedCallback([this]() {
+            gameScreen = std::make_unique<GameScreen>();
+        });
+        static_cast<MenuScreen*>(menuScreen.get())->setSecondButtonPressedCallback([this]() {
+            gameScreen = std::make_unique<AsteroidsGameScreen>();
+        });
+        static_cast<MenuScreen*>(menuScreen.get())->setExitButtonPressedCallback([this]() {
+            window.close();
+        });
+
         window.setFramerateLimit(60);
     }
 
@@ -27,8 +38,8 @@ public:
 
 private:
     sf::RenderWindow window;
-    std::unique_ptr<GameScreen> gameScreen;
-    std::unique_ptr<MenuScreen> menuScreen;
+    std::unique_ptr<Screen> gameScreen;
+    std::unique_ptr<Screen> menuScreen;
 
     void processEvents()
     {
@@ -51,31 +62,21 @@ private:
             if(gameScreen->update(window))
             {
                 gameScreen.reset();
-                menuScreen = std::make_unique<MenuScreen>(windowWidth, windowHeight);
             }
-        }
+        } else
         if (menuScreen)
         {
             menuScreen->update(window);
-            if (menuScreen->isPlayButtonPressed(window))
-            {
-                menuScreen.reset();
-                gameScreen = std::make_unique<GameScreen>();
-            }
-            else if (menuScreen->isExitButtonPressed(window))
-            {
-                window.close();
-            }
         }
     }
 
     void draw()
     {
         window.clear(sf::Color::Black);
-        if (menuScreen)
-            menuScreen->draw(window);
         if (gameScreen)
             gameScreen->draw(window);
+        else if (menuScreen)
+            menuScreen->draw(window);
         window.display();
     }
 };

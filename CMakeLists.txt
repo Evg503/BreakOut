@@ -8,10 +8,15 @@ project(Breakout)
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 # Add the executable
-add_executable(Breakout src/main.cpp)
+add_executable(Breakout src/main.cpp
+    src/Asteroids.cpp
+)
 
 # Link the SFML libraries
 target_link_libraries(Breakout sfml-graphics sfml-window sfml-system)
+ # copy the resources folder to the build directory
+ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/fonts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Enable testing
 enable_testing()
