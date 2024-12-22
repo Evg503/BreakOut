@@ -29,18 +29,18 @@ public:
         if (left() < 0)
         {
             velocity.x = std::min(std::abs(velocity.x * dis(gen)), maxballVelocity);
-            shape->setPosition(x()-left(), shape->getPosition().y);
+            shape->setPosition(x() - left(), shape->getPosition().y);
         }
         else if (right() > windowWidth)
         {
             velocity.x = -std::min(std::abs(velocity.x * dis(gen)), maxballVelocity);
-            shape->setPosition(windowWidth - (right() - windowWidth)-radius, shape->getPosition().y);
+            shape->setPosition(windowWidth - (right() - windowWidth) - radius, shape->getPosition().y);
         }
 
         if (top() < 0)
         {
             velocity.y = std::min(std::abs(velocity.y * dis(gen)), maxballVelocity);
-            shape->setPosition(shape->getPosition().x, y()-top());
+            shape->setPosition(shape->getPosition().x, y() - top());
         }
         else if (bottom() > windowHeight)
         {

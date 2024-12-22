@@ -31,7 +31,7 @@ public:
         }
     }
 
-    bool update(sf::RenderWindow &window)
+    bool update(sf::Window &window)
     {
         if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Left)) && emitClock.getElapsedTime().asSeconds() >= 0.1f)
         {

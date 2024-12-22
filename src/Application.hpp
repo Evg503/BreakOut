@@ -56,6 +56,7 @@ private:
         }
         if (menuScreen)
         {
+            menuScreen->update(window);
             if (menuScreen->isPlayButtonPressed(window))
             {
                 menuScreen.reset();
